@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>楽しくタイピング</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #ccf2ff, #ffe0f7);
+      color: #5e005e;
+      font-family: "Comic Sans MS", "Arial", sans-serif;
+      background-image: url('https://www.transparenttextures.com/patterns/stardust.png'),
+                        url('https://www.transparenttextures.com/patterns/tiny-grid.png');
+    }
+
+    .game {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 24px;
+      box-shadow: 0 12px 30px rgba(0, 200, 255, 0.3);
+    }
+
+    .game-header {
+      background: linear-gradient(to right, #66ccff, #ff99cc);
+      color: #fff;
+      padding: 16px;
+      border-radius: 16px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 #003366;
+      border: 4px double #ffffff;
+    }
+
+    .info {
+      display: flex;
+      justify-content: space-around;
+      margin: 16px 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #003366;
+    }
+
+    .lane-wrapper {
+      background: #f0faff;
+      border: 4px dashed #66ccff;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(102, 204, 255, 0.4);
+    }
+
+    .lane-label {
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #0099cc;
+      font-weight: bold;
+    }
+
+    .lane {
+      height: 140px;
+      background: #ffffff;
+      border: 3px dotted #3399ff;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bubble {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #e6f7ff;
+      border: 3px solid #00ccff;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 20px;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0, 204, 255, 0.4);
+      display: flex;
+      gap: 3px;
+    }
+
+    .char-span.correct {
+      color: #00ccff;
+      text-shadow: 0 0 4px #fff;
+    }
+
+    .game-footer {
+      margin-top: 24px;
+    }
+
+    .type-input {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 3px solid #66ccff;
+      border-radius: 12px;
+      outline: none;
+      box-shadow: inset 0 3px 6px #cceeff;
+      background: #f8fbff;
+    }
+
+    .result {
+      margin-top: 20px;
+      background: #e6f7ff;
+      padding: 16px;
+      border: 3px solid #66ccff;
+      border-radius: 12px;
+      box-shadow: 0 6px 12px rgba(102, 204, 255, 0.2);
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <div class="game-header">
+      ⭐たのしくタイピング⭐
+    </div>
+
+    <div class="info">
+      <div>スコア：<span id="score">0</span></div>
+      <div>時間：<span id="gameTime">60</span>s</div>
+      <div>ミス：<span id="miss">0</span></div>
+    </div>
+
+    <div class="lane-wrapper">
+      <div class="lane-label">⭐ もじが　ながれてくる　⭐</div>
+      <div class="lane" id="lane">
+        <div class="bubble" id="bubble"></div>
+      </div>
+    </div>
+
+    <div class="game-footer">
+      <input id="input" class="type-input" placeholder="もじを　にゅうりょくしてね☆" />
+      <div id="result" class="result hidden">
+        <strong>⭐ おつかれさま  ⭐</strong>
+        <p id="resultText"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const words = [
+      "やればできる子", "がんばっててえらい！", "ちゃんと起きれた！", "かしこすぎ！",
+      "笑顔が可愛い",  "ビール美味しい♡", "今日もがんばった！",
+      "やりきった！", "優勝！！！",
+      "才能ありすぎ", "世界一かわいい", "努力の天才", "気配り上手", "今日も天才",
+      "ほめるとこしかない", "まじで尊い", "最高のいちにち",
+      "いい感じ〜！", "センスありすぎ", 
+      "無敵モード", "神対応！", "周囲も笑顔に！", "なんかもう天才！"
+    ];
+
+    const scoreEl = document.getElementById("score");
+    const gameTimeEl = document.getElementById("gameTime");
+    const missEl = document.getElementById("miss");
+    const laneEl = document.getElementById("lane");
+    const bubbleEl = document.getElementById("bubble");
+    const inputEl = document.getElementById("input");
+    const resultBox = document.getElementById("result");
+    const resultText = document.getElementById("resultText");
+
+    let currentWord = "";
+    let laneWidth = 0;
+    let bubbleDuration = 15000;
+    let bubbleStartTime = 0;
+    let bubbleX = 0;
+
+    let gameTime = 60;
+    let gameTimerId = null;
+    let score = 0;
+    let miss = 0;
+
+    function renderWordAsSpans(word) {
+      bubbleEl.innerHTML = "";
+      for (let ch of word) {
+        const span = document.createElement("span");
+        span.textContent = ch;
+        span.className = "char-span";
+        bubbleEl.appendChild(span);
+      }
+    }
+
+    function setNewBubble() {
+      currentWord = words[Math.floor(Math.random() * words.length)];
+      renderWordAsSpans(currentWord);
+      inputEl.value = "";
+      bubbleStartTime = performance.now();
+      bubbleX = -200;
+      bubbleEl.style.left = bubbleX + "px";
+    }
+
+    function animateBubble(timestamp) {
+      const elapsed = timestamp - bubbleStartTime;
+      const t = Math.min(elapsed / bubbleDuration, 1);
+      bubbleX = -200 + (laneWidth + 300) * t;
+      bubbleEl.style.left = bubbleX + "px";
+      if (elapsed >= bubbleDuration) {
+        miss++;
+        missEl.textContent = miss;
+        setNewBubble();
+      }
+      requestAnimationFrame(animateBubble);
+    }
+
+    inputEl.addEventListener("input", () => {
+      const val = inputEl.value;
+      const spans = bubbleEl.querySelectorAll(".char-span");
+      let longestPrefix = 0;
+      for (let i = 0; i < val.length && i < currentWord.length; i++) {
+        if (val[i] === currentWord[i]) {
+          longestPrefix++;
+        } else {
+          break;
+        }
+      }
+      for (let i = 0; i < spans.length; i++) {
+        if (i < longestPrefix) {
+          spans[i].classList.add("correct");
+        } else {
+          spans[i].classList.remove("correct");
+        }
+      }
+      if (val === currentWord) {
+        score += 10;
+        scoreEl.textContent = score;
+        setNewBubble();
+      }
+    });
+
+    function startGameTimer() {
+      if (gameTimerId) return;
+      gameTimerId = setInterval(() => {
+        gameTime--;
+        gameTimeEl.textContent = gameTime;
+        if (gameTime <= 0) {
+          clearInterval(gameTimerId);
+          endGame();
+        }
+      }, 1000);
+    }
+
+    function endGame() {
+      inputEl.disabled = true;
+      resultBox.classList.remove("hidden");
+resultText.textContent = `💖 きょうのスコア：${score} てん!! 💖\n🌟 ミス：${miss} OK🌈\n✨ じぶんをほめてあげよう♡`;
+    }
+
+    window.addEventListener("load", () => {
+      laneWidth = laneEl.clientWidth;
+      setNewBubble();
+      requestAnimationFrame(animateBubble);
+      inputEl.focus();
+      startGameTimer();
+    });
+  </script>
+</body>
+</html>

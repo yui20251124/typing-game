@@ -1,0 +1,198 @@
+/* ベース */
+body {
+  margin: 0;
+  padding: 20px;
+  font-family: "Helvetica Neue", "Yu Gothic", sans-serif;
+  text-align: center;
+  transition: background 0.4s ease;
+  color: #222;
+}
+
+/* モード別背景 */
+body.sales-mode {
+  background: linear-gradient(135deg, #f7faff 0%, #ffffff 100%);
+}
+body.secretary-mode {
+  background: radial-gradient(circle, #fff4e9 0%, #fbe1c5 100%);
+}
+body.engineer-mode {
+  background: linear-gradient(180deg, #0b0c10 0%, #1f2833 100%);
+  color: #eee;
+}
+body.chairman-mode {
+  background: linear-gradient(160deg, #0f172a 0%, #1f2937 100%);
+  color: #fff;
+}
+
+.title {
+  margin-bottom: 4px;
+}
+.subtitle {
+  margin-bottom: 16px;
+  color: inherit;
+}
+
+/* モードボタン */
+.mode-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.mode-btn {
+  border: 1px solid rgba(0,0,0,0.1);
+  background: #fff;
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 14px;
+}
+body.chairman-mode .mode-btn,
+body.engineer-mode .mode-btn {
+  background: rgba(255,255,255,0.05);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.mode-btn.active {
+  background: #e9f2ff;
+  border-color: #6b9dff;
+  font-weight: 600;
+}
+body.secretary-mode .mode-btn.active {
+  background: #ffe6c7;
+  border-color: #f5a44b;
+}
+body.engineer-mode .mode-btn.active {
+  background: rgba(33,150,243,0.3);
+  border-color: #2196f3;
+}
+body.chairman-mode .mode-btn.active {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.6);
+}
+
+/* スコアなど */
+.info {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+/* レーン */
+.lane {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  height: 100px;
+  margin: 0 auto 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 3px solid rgba(194, 194, 194, 0.7);
+  border-radius: 50px;
+  overflow: hidden;
+}
+body.chairman-mode .lane,
+body.engineer-mode .lane {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.25);
+}
+
+/* 流れてくる吹き出し */
+.sushi {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: -400px;
+  background: #e9f2ff;
+  border: 2px solid #b4cfff;
+  border-radius: 999px;
+  padding: 10px 26px;
+  min-width: 200px;
+  text-align: center;
+  font-weight: 600;
+  transition: left 0.18s linear;
+  white-space: nowrap;
+}
+body.secretary-mode .sushi {
+  background: #fff3e7;
+  border-color: #f2c79c;
+}
+body.engineer-mode .sushi {
+  background: rgba(33, 150, 243, 0.2);
+  border-color: #2196f3;
+  color: #fff;
+}
+body.chairman-mode .sushi {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+/* 入力欄 */
+.input {
+  width: 90%;
+  max-width: 500px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  outline: none;
+  background: #fff;
+}
+.input:focus {
+  box-shadow: 0 0 0 3px rgba(86, 156, 214, 0.25);
+}
+body.engineer-mode .input,
+body.chairman-mode .input {
+  background: rgba(255,255,255,0.85);
+}
+
+/* キャラ */
+.character {
+  margin-top: 24px;
+}
+.character img {
+  width: 160px;
+  height: auto;
+}
+.character p {
+  margin-top: 8px;
+  color: inherit;
+}
+
+/* 結果表示 */
+.result {
+  margin-top: 24px;
+  background: #fff8e1;
+  border: 1px solid #ffe0a3;
+  display: inline-block;
+  padding: 16px 20px;
+  border-radius: 12px;
+  text-align: left;
+  max-width: 600px;
+  white-space: pre-line;
+}
+body.chairman-mode .result,
+body.engineer-mode .result {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+}
+.hidden {
+  display: none;
+}
+
+
+/* ===== ending video overlay ===== */
+#endingVideo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 9999;
+  background: #000;
+}
